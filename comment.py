@@ -17,7 +17,7 @@ class Comment(db.Model):
 class NewComment(BlogHandler):
     def post(self):
         if not self.user:
-            self.redirect('/blog/'+original_post_id)
+            return self.redirect('/login')
         
         original_post_id = self.request.get('original_post_id')
         content = self.request.get('content')
@@ -34,25 +34,27 @@ class NewComment(BlogHandler):
 class DeleteComment(BlogHandler):
     def get(self):
         if not self.user:
-            self.redirect('/blog')
+            return self.redirect('/login')
 
         comment_id = self.request.get('comment_id')
         if not comment_id:
-            self.redirect('/blog')
+            return self.redirect('/login')
         
         key = db.Key.from_path('Comment', int(comment_id), parent=blog_key())
         comment = db.get(key)
 
-        original_post_id = comment.original_post_id
-        comment.delete()
+        # Only allow the a delete if the user is the commenter.
+        if comment.poster_id == self.user.key().id():
+            original_post_id = comment.original_post_id
+            comment.delete()
 
-        self.redirect('/blog/' + str(original_post_id))
+        self.redirect('/blog/' + str(comment.original_post_id))
 
 class EditComment(BlogHandler):
     def get(self):
         comment_id = self.request.get("comment_id")
         if not comment_id:
-            self.redirect('/blog')
+            return self.redirect('/blog')
 
         key = db.Key.from_path('Comment', int(comment_id), parent=blog_key())
         comment = db.get(key)
@@ -64,7 +66,7 @@ class EditComment(BlogHandler):
 
     def post(self):
         if not self.user:
-            self.redirect('/login')
+            return self.redirect('/login')
 
         content = self.request.get('content')
         comment_id = self.request.get('comment_id')
@@ -75,6 +77,10 @@ class EditComment(BlogHandler):
         if not c:
             self.error(404)
             return
+        
+        # Don't allow edits not by origianl poster.
+        if c.poster_id != self.user.key().id():
+            return self.redirect('/blog/%s' % str(c.original_post_id))
 
         if content:
             c.content = content
@@ -83,3 +89,4 @@ class EditComment(BlogHandler):
         else:
             error = "content, please!"
             self.render("editcomment.html", comment=c, error=error)
+            

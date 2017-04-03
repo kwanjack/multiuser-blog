@@ -58,6 +58,10 @@ class EditPage(BlogHandler):
             self.error(404)
             return
 
+        if p.poster_id != self.user.key().id():
+            error = "Don't edit things that arent yours!"
+            return self.render("editpost.html", post=p, error=error)
+
         if subject and content:
             p.subject = subject
             p.content = content
@@ -82,13 +86,23 @@ class DeletePost(BlogHandler):
         post.delete()
         self.redirect('/blog')
 
-class NewPost(BlogHandler):
-    def get(self):
-        if self.user:
-            self.render("newpost.html")
+def login_required(func):
+    """
+    A decorator to confirm a user is logged in or redirect as needed.
+    """
+    def login(self, *args, **kwargs):
+        # Redirect to login if user not logged in, else execute func.
+        if not self.user:
+            self.redirect("/login")
         else:
-            self.redirect('/login')
+            func(self, *args, **kwargs)
+    return login
 
+class NewPost(BlogHandler):
+    @login_required
+    def get(self):
+        self.render("newpost.html")
+        
     def post(self):
         if not self.user:
             self.redirect('/blog')
@@ -121,7 +135,7 @@ class LikeUnlikePost(BlogHandler):
 
         # A user cannot toggle like/dislike on his own post.
         if post.poster_id == user_id:
-            self.redirect('/blog')
+            return self.redirect('/blog')
 
         # Add user to the list of liked users if the user isn't already there.
         # Otherwise remove it from the list. This toggles Like/Unlike.
