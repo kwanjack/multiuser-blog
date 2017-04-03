@@ -49,7 +49,7 @@ class EditPage(BlogHandler):
 
     def post(self):
         if not self.user:
-            self.redirect('/blog')
+            return self.redirect('/blog')
 
         subject = self.request.get('subject')
         content = self.request.get('content')
@@ -109,11 +109,9 @@ class NewPost(BlogHandler):
     @login_required
     def get(self):
         self.render("newpost.html")
-
+    
+    @login_required
     def post(self):
-        if not self.user:
-            self.redirect('/blog')
-
         subject = self.request.get('subject')
         content = self.request.get('content')
 
