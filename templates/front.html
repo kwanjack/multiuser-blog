@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if user %}
+      <a href="/blog/newpost"> New Post </a>
+      <br><br>
+  {% endif %}
+
+  {% for p in posts %}
+    {{ p.render() | safe }}
+    <br><br>
+
+    {% if user %}
+      <div class="post-buttons">
+        {% if user.key().id() in p.liked_users %}
+        <p>You liked this</p>
+        {% endif %}
+
+        {% if user.key().id() == p.poster_id %}
+        <form action="/blog/edit" method="get" style="float: left; margin-right: 10px">
+          <input type="hidden" name="post_id" value={{p.key().id()}}>
+          <input type="submit" value="edit">
+        </form>
+
+        <form action="/blog/delete">
+          <input type="hidden" name="post_id" value={{p.key().id()}}>
+          <input type="submit" value="delete">
+        </form>
+        {% else %}
+        <form action="/blog/like_toggle">
+          <input type="hidden" name="post_id" value={{p.key().id()}}>
+          {% if user.key().id() in p.liked_users %}
+            <input type="submit" value="unlike">
+          {% else %}
+            <input type="submit" value="like">
+          {% endif %}
+        </form>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <br><br>
+
+  {% endfor %}
+
+{% endblock %}

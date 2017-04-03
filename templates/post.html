@@ -1,0 +1,27 @@
+<div class="post">
+  <div class="post-heading">
+    <div class="post-title">
+      <a href="/blog/{{p.key().id()}}">{{p.subject}}</a>
+    </div>
+
+    <div class="poster-name">
+      Author: {{p._poster_name}}
+    </div>
+
+    <div class="post-date">
+      {{p.created.strftime("%b %d, %Y")}}
+    </div>
+  </div>
+
+  <div class="post-content">
+    {{p._render_text | safe}}
+  </div>
+  
+  {% if p._user in p.liked_users %}
+  <div class="liked">
+    You Liked this post.
+  </div>
+  {% endif %}
+
+  </div>
+</div>
