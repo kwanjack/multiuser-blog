@@ -6,4 +6,4 @@ This project is written with Google App Engine. To run this locally, ```cd``` in
 dev_appserver.py .
 ```
 
-I also run a version on [here](kwan-multiuser-blog.appspot.com).
+I also run a version on [here](http://kwan-multiuser-blog.appspot.com).
