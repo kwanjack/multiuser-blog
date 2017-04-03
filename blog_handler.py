@@ -1,17 +1,20 @@
 import webapp2
 import hmac
-import os 
+import os
 import jinja2
 
 from user import *
 
 secret = 'fart'
 
-def blog_key(name = 'default'):
+
+def blog_key(name='default'):
     return db.Key.from_path('blogs', name)
+
 
 def make_secure_val(val):
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
+
 
 def check_secure_val(secure_val):
     val = secure_val.split('|')[0]
@@ -19,12 +22,14 @@ def check_secure_val(secure_val):
         return val
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                               autoescape = True)
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+                               autoescape=True)
+
 
 def render_str(template, **params):
     t = jinja_env.get_template(template)
     return t.render(params)
+
 
 class BlogHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):

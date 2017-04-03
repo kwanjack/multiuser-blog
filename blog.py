@@ -8,15 +8,18 @@ from registration import *
 
 import webapp2
 
+
 class MainPage(BlogHandler):
     def get(self):
         self.redirect('/blog')
+
 
 class BlogFront(BlogHandler):
     def get(self):
         # Ancestory query allows strongly consistent reads.
         posts = greetings = Post.all().order('-created').ancestor(blog_key())
-        self.render('front.html', posts = posts)
+        self.render('front.html', posts=posts)
+
 
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/blog/?', BlogFront),
